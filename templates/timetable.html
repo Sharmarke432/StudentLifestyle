@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <title>Planner</title>
+{% endblock %}
+
+{% block body %}
+  <h1>Weekly Timetable</h1>
+
+  <!-- Week navigation -->
+  <div>
+    <a href="{{ url_for('timetable', week=week_offset - 1) }}">Previous week</a>
+    |
+    <span>
+      Week of {{ days[0].strftime("%d %b %Y") }} -
+      {{ days[-1].strftime("%d %b %Y") }}
+    </span>
+    |
+    <a href="{{ url_for('timetable', week=week_offset + 1) }}">Next week</a>
+  </div>
+
+  <hr>
+
+  <!-- Add study block form -->
+  <h2>Add study block</h2>
+  <form method="post">
+    <label>Subject:
+      <input type="text" name="subject" required>
+    </label>
+    <br>
+
+    <label>Day:
+    <select name="day_offset">
+        {% for i in range(days|length) %}
+        <option value="{{ i }}">{{ days[i].strftime("%A") }}</option>
+        {% endfor %}
+    </select>
+    </label>
+    <br>
+
+    <label>Start time:
+      <input type="time" name="start_time" required>
+    </label>
+    <br>
+
+    <label>End time:
+      <input type="time" name="end_time" required>
+    </label>
+    <br>
+
+    <button type="submit">Add block</button>
+  </form>
+
+  <hr>
+
+  <!-- Week view -->
+  <h2>This week</h2>
+  <table border="1" cellpadding="4">
+    <tr>
+      {% for d in days %}
+        <th>{{ d.strftime("%A") }}<br>{{ d.strftime("%d %b") }}</th>
+      {% endfor %}
+    </tr>
+    <tr>
+      {% for d in days %}
+        <td>
+            {% for block in blocks_by_day[d.strftime("%A")] %}
+                <div>
+                    <strong>{{ block.subject }}</strong><br>
+                    {{ block.start_time }} - {{ block.end_time }}
+
+                    <form method="post"
+                        action="{{ url_for('delete_block', block_id=block.id, week=week_offset) }}"
+                        style="display:inline;">
+                    <button type="submit">Delete</button>
+                    </form>
+                </div>
+                <hr>
+            {% endfor %}
+
+        </td>
+      {% endfor %}
+    </tr>
+  </table>
+{% endblock %}
